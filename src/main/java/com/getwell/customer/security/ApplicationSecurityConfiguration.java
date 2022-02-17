@@ -78,7 +78,6 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                 .authorizeRequests()
-                //.antMatchers("/login**").permitAll()
                 .antMatchers("/user**").hasAuthority("user")
                 .antMatchers("/vendor**").hasAuthority("vendor")
                 .antMatchers("/error").permitAll()
