@@ -75,7 +75,7 @@ public class CustomerController {
     }
 
     @GetMapping("userTest")
-    public String userTesting(HttpServletRequest request, @RequestParam("role") String roleName){
+    public String userTesting(HttpServletRequest request, @RequestParam("role") String roleName,  @RequestParam("username") String username,  @RequestParam("password") String password){
         String auth = request.getHeader("Authorization");
         return "User test is going on.....";
     }
@@ -86,7 +86,7 @@ public class CustomerController {
     }
 
     @GetMapping("vendorTest")
-    public String vendorTesting(@RequestParam("role") String roleName){
+    public String vendorTesting(@RequestParam("role") String roleName, @RequestParam("username") String username, @RequestParam("password") String password){
         role.setId(1);
         role.setName("user");
         user = userMongoRepository.findByMobileNumberAndPasswordAndRolesContaining("01720024944","123456",role);

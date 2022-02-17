@@ -31,16 +31,15 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     }
 
-
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String auth = request.getHeader("Authorization");
+        /*String auth = request.getHeader("Authorization");
         String upd = request.getHeader("authorization");
         String pair = new String(Base64.decodeBase64(upd.substring(6)));
         String userName = pair.split(":")[0];
-        String password = pair.split(":")[1];
+        String password = pair.split(":")[1];*/
+        String userName = request.getParameter("username");
+        String password = request.getParameter("password");
         String roleName = request.getParameter("role");
         System.out.println("this role name is "+roleName);
         Authentication authentication = null;
@@ -51,13 +50,9 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             if (user != null) {
                 UserDetails principal = new ApplicationUserDetails(user);
                 authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(authentication);
-                SecurityContextHolder.setContext(securityContext);
-                // Create a new session and add the security context.
-                HttpSession session = request.getSession(true);
-                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-
+                //SecurityContext securityContext = SecurityContextHolder.getContext();
+                //securityContext.setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
                 // Create a new session and add the security context.
                 //HttpSession session = request.getSession(true);
                 //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
@@ -71,13 +66,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             if (user != null) {
                 UserDetails principal = new ApplicationUserDetails(user);
                 authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(authentication);
-                SecurityContextHolder.setContext(securityContext);
-                // Create a new session and add the security context.
-                HttpSession session = request.getSession(true);
-                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-
+                SecurityContextHolder.getContext().setAuthentication(authentication);
                 // Create a new session and add the security context.
                 //HttpSession session = request.getSession(true);
                 //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
@@ -86,4 +75,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         }
         chain.doFilter(request,response);
     }
+
+
 }

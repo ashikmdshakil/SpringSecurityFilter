@@ -21,8 +21,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -47,7 +50,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
     }
 
 
-    @Bean
+    /*@Bean
     public AuthenticationFilter authenticationFilter() throws Exception {
         AuthenticationFilter authenticationFilter
                 = new AuthenticationFilter(userMongoRepository);
@@ -56,7 +59,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         authenticationFilter.setAuthenticationSuccessHandler(this::loginSuccessHandler);
         authenticationFilter.setAuthenticationFailureHandler(this :: loginFailureHandler);
         return authenticationFilter;
-    }
+    }*/
 
     @Bean
     public AuthorizationFilter authorizationFilter() throws Exception {
@@ -65,11 +68,18 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return authorizationFilter;
     }
 
-@Override
+    /*@Bean
+    public OncePerRequestFilter perRequestFilter() throws Exception {
+        PerRequestFilter perRequestFilter
+                = new PerRequestFilter(userMongoRepository);
+        return perRequestFilter;
+    }*/
+
+/*@Override
 protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     // TODO Auto-generated method stub
     auth.userDetailsService(userDetailsService);
-}
+}*/
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -83,22 +93,27 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // TODO Auto-generated method stub
         http
                 .cors().and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("login").permitAll()
-                .antMatchers("/user").hasAuthority("user")
-                .antMatchers("/vendor").hasAuthority("vendor")
+                .antMatchers("/login").permitAll()
+                .antMatchers("/user**").hasAuthority("user")
+                .antMatchers("/vendor**").hasAuthority("vendor")
                 .antMatchers("/error").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()
+                .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                .and()
                 .logout()
-                .invalidateHttpSession(true)
+                //.invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .and().csrf().disable();
-                http.addFilterAt(authorizationFilter(), BasicAuthenticationFilter.class);
+
+        http.addFilterAt(authorizationFilter(), BasicAuthenticationFilter.class);
+
+        //http.addFilterBefore(new PerRequestFilter(this.userMongoRepository), UsernamePasswordAuthenticationFilter.class);
     }
     @Bean
     public PasswordEncoder getPasswordEncoder() {
