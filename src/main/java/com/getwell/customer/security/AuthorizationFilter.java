@@ -3,10 +3,10 @@ package com.getwell.customer.security;
 import com.getwell.customer.model.Role;
 import com.getwell.customer.model.User;
 import com.getwell.customer.repositories.UserMongoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,30 +36,54 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        /*String userName  = "01720024944";
+        String auth = request.getHeader("Authorization");
+        String upd = request.getHeader("authorization");
+        String pair = new String(Base64.decodeBase64(upd.substring(6)));
+        String userName = pair.split(":")[0];
+        String password = pair.split(":")[1];
         String roleName = request.getParameter("role");
-        System.out.println(roleName);
-        if(roleName == "user"){
+        System.out.println("this role name is "+roleName);
+        Authentication authentication = null;
+        if (roleName.equals("user")) {
             role.setId(1);
             role.setName("user");
-            user = userMongoRepository.findByMobileNumberAndRolesContaining(userName,role);
+            user = userMongoRepository.findByMobileNumberAndPasswordAndRolesContaining(userName, password, role);
+            if (user != null) {
+                UserDetails principal = new ApplicationUserDetails(user);
+                authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
+                // Create a new session and add the security context.
+                HttpSession session = request.getSession(true);
+                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+                // Create a new session and add the security context.
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+                System.out.println("User authentication is done ...");
+            }
         }
-        else{
+        else if(roleName.equals("vendor")){
             role.setId(2);
             role.setName("vendor");
-            user = userMongoRepository.findByMobileNumberAndRolesContaining(userName,role);
-        }
-        System.out.println("numbeeer"+user.getMobileNumber());
-        UserDetails principal = new ApplicationUserDetails(user);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        securityContext.setAuthentication(authentication);
-        SecurityContextHolder.setContext(securityContext);
+            user = userMongoRepository.findByMobileNumberAndPasswordAndRolesContaining(userName, password, role);
+            if (user != null) {
+                UserDetails principal = new ApplicationUserDetails(user);
+                authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                securityContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(securityContext);
+                // Create a new session and add the security context.
+                HttpSession session = request.getSession(true);
+                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 
-        // Create a new session and add the security context.
-        HttpSession session = request.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);*/
-        System.out.println("Authorization filter is working .....");
-        chain.doFilter(request, response);
+                // Create a new session and add the security context.
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+                System.out.println("Vendor authentication is done..");
+            }
+        }
+        chain.doFilter(request,response);
     }
 }

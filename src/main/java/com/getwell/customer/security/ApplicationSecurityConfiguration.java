@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -57,6 +58,13 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return authenticationFilter;
     }
 
+    @Bean
+    public AuthorizationFilter authorizationFilter() throws Exception {
+        AuthorizationFilter authorizationFilter
+                = new AuthorizationFilter(userMongoRepository, authenticationManagerBean());
+        return authorizationFilter;
+    }
+
 @Override
 protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     // TODO Auto-generated method stub
@@ -78,8 +86,9 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user**").hasAuthority("user")
-                .antMatchers("/vendor**").hasAuthority("vendor")
+                .antMatchers("login").permitAll()
+                .antMatchers("/user").hasAuthority("user")
+                .antMatchers("/vendor").hasAuthority("vendor")
                 .antMatchers("/error").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
@@ -89,7 +98,7 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 .clearAuthentication(true)
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .and().csrf().disable();
-                http.addFilter(new AuthenticationFilter(this.userMongoRepository));
+                http.addFilterAt(authorizationFilter(), BasicAuthenticationFilter.class);
     }
     @Bean
     public PasswordEncoder getPasswordEncoder() {
