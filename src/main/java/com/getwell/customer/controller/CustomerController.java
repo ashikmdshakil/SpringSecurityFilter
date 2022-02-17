@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -36,7 +37,7 @@ public class CustomerController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("loginEr")
-    public String encoding(@RequestParam("pass") String pass){
+    public String encoding(@RequestParam("pass") String pass) {
         String password = passwordEncoder.encode(pass);
         System.out.println(password);
         boolean check = passwordEncoder.matches(pass, password);
@@ -44,28 +45,9 @@ public class CustomerController {
         return null;
     }
 
-    @GetMapping("loginUser")
-    public String logInUser(@RequestParam("username") String username, @RequestParam("password") String password, HttpServletRequest request){
-        String status = "";
-        role.setId(1);
-        role.setName("user");
-        user = userMongoRepository.findByMobileNumberAndPasswordAndRolesContaining(username, password, role);
-        if(user != null){
-            UserDetails principal = new ApplicationUserDetails(user);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(authentication);
-            SecurityContextHolder.setContext(securityContext);
-
-            // Create a new session and add the security context.
-            HttpSession session = request.getSession(true);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
-            status = "authenticated";
-        }
-        else{
-            status = "failed";
-        }
-        return status;
+    @GetMapping("login")
+    public String logInUser(@RequestParam("username") String username, @RequestParam("password") String password, HttpServletRequest request) {
+        return "Authenticated";
     }
 
     @GetMapping("loginVendor")
@@ -95,11 +77,6 @@ public class CustomerController {
     @GetMapping("userTest")
     public String userTesting(HttpServletRequest request, @RequestParam("role") String roleName){
         String auth = request.getHeader("Authorization");
-        //System.out.println(auth);
-        /*String upd=request.getHeader("authorization");
-        String pair=new String(Base64.decodeBase64(upd.substring(6)));
-        String userName=pair.split(":")[0];
-        String password=pair.split(":")[1];*/
         return "User test is going on.....";
     }
 

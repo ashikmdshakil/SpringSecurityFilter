@@ -6,6 +6,7 @@ import com.getwell.customer.repositories.UserMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,9 +31,12 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     }
 
+
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String userName  = "01720024944";
+        /*String userName  = "01720024944";
         String roleName = request.getParameter("role");
         System.out.println(roleName);
         if(roleName == "user"){
@@ -54,7 +58,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
         // Create a new session and add the security context.
         HttpSession session = request.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);*/
+        System.out.println("Authorization filter is working .....");
         chain.doFilter(request, response);
     }
 }

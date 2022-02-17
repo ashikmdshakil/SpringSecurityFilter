@@ -48,12 +48,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             if (user != null) {
                 UserDetails principal = new ApplicationUserDetails(user);
                 authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(authentication);
-                SecurityContextHolder.setContext(securityContext);
+                //SecurityContext securityContext = SecurityContextHolder.getContext();
+                //securityContext.setAuthentication(authentication);
+                //SecurityContextHolder.setContext(securityContext);
                 // Create a new session and add the security context.
-                HttpSession session = request.getSession(true);
-                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+                // Create a new session and add the security context.
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
                 System.out.println("User authentication is done ...");
             }
         }
@@ -64,30 +68,24 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             if (user != null) {
                 UserDetails principal = new ApplicationUserDetails(user);
                 authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-                SecurityContext securityContext = SecurityContextHolder.getContext();
-                securityContext.setAuthentication(authentication);
-                SecurityContextHolder.setContext(securityContext);
+                //SecurityContext securityContext = SecurityContextHolder.getContext();
+               //securityContext.setAuthentication(authentication);
+                //SecurityContextHolder.setContext(securityContext);
                 // Create a new session and add the security context.
-                HttpSession session = request.getSession(true);
-                session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+
+                // Create a new session and add the security context.
+                //HttpSession session = request.getSession(true);
+                //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
                 System.out.println("Vendor authentication is done..");
             }
         }
-        /*try {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Sorry you are not authenticated. Bad credentials");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         return authentication;
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         chain.doFilter(request,response);
-    }
-
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Sorry you are not authenticated. Bad credentials");
     }
 }

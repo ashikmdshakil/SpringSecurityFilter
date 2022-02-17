@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -23,6 +25,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -39,34 +45,15 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return super.authenticationManagerBean();
     }
 
-   /*@Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // TODO Auto-generated method stub
-       auth.authenticationProvider(authenticationProvider());
-    }*/
-
-/*    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // TODO Auto-generated method stub
-        //auth.userDetailsService(userDetailsService);
-        web.ignoring().antMatchers("/**");
-    }*/
 
     @Bean
     public AuthenticationFilter authenticationFilter() throws Exception {
         AuthenticationFilter authenticationFilter
                 = new AuthenticationFilter(userMongoRepository);
-        //authenticationFilter.setAuthenticationSuccessHandler(this::loginSuccessHandler);
-        //authenticationFilter.setAuthenticationFailureHandler(this::loginFailureHandler);
-        authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/**"));
-        //authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatchers("/vendorTest",""));
+        authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/login"));
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
+        authenticationFilter.setAuthenticationSuccessHandler(this::loginSuccessHandler);
+        authenticationFilter.setAuthenticationFailureHandler(this :: loginFailureHandler);
         return authenticationFilter;
     }
 
@@ -80,7 +67,7 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     public void configure(WebSecurity web) throws Exception {
         // TODO Auto-generated method stub
         //auth.userDetailsService(userDetailsService);
-        web.ignoring().antMatchers("/login**");
+        web.ignoring().antMatchers("/login**","/error","/login");
     }
 
     @Override
@@ -94,13 +81,7 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 //.antMatchers("/login**").permitAll()
                 .antMatchers("/user**").hasAuthority("user")
                 .antMatchers("/vendor**").hasAuthority("vendor")
-                //.antMatchers("/logout").hasAnyAuthority("user","vendor")
-                //.antMatchers("/admin**").hasAuthority("admin")
-                //.antMatchers("/moderator**").hasAuthority("moderator")
-                //.antMatchers("/vendor**").hasAuthority("vendor")
-                //.antMatchers("/salesman**").hasAuthority("salesman")
-                //.antMatchers("/login").permitAll()
-                //.antMatchers("/**").permitAll()
+                .antMatchers("/error").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()
@@ -109,34 +90,27 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 .clearAuthentication(true)
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .and().csrf().disable();
-        http.addFilterBefore(authenticationFilter(), AuthenticationFilter.class);
-        //http.addFilterBefore(new AuthenticationFilter(userMongoRepository), AuthenticationFilter.class).addFilter(new AuthorizationFilter(userMongoRepository,authenticationManagerBean()));
+                http.addFilter(new AuthenticationFilter(this.userMongoRepository));
     }
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
 
-    /*@Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
-    }*/
+    private void loginSuccessHandler(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication) throws IOException {
 
- /*   @Bean
-    @Scope(scopeName = "prototype")
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }*/
+        response.setStatus(HttpStatus.OK.value());
+    }
 
-/*    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedMethods("GET", "POST")
-                        .allowedOrigins("*");
-            }
-        };
-    }*/
+    private void loginFailureHandler(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException e) throws IOException {
+
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
 }
