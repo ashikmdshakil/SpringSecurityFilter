@@ -24,6 +24,7 @@ public class User {
     private String email;
     private String mobileNumber;
     private String password;
+
     //vendor's rating by consumers
     private double rating;
 
@@ -47,6 +48,9 @@ public class User {
 
     //Reference vendor for branch
     private User referenceVendor;
+
+    //JWT token
+    private String authToken;
 
     //User roles
     @DBRef(lazy = true)

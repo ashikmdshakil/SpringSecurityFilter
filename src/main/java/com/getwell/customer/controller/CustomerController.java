@@ -4,6 +4,7 @@ import com.getwell.customer.model.Role;
 import com.getwell.customer.model.User;
 import com.getwell.customer.repositories.UserMongoRepository;
 import com.getwell.customer.security.ApplicationUserDetails;
+import com.getwell.customer.service.Utils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -35,6 +36,8 @@ public class CustomerController {
     private UserMongoRepository userMongoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private Utils utils;
 
     @GetMapping("loginEr")
     public String encoding(@RequestParam("pass") String pass) {
@@ -46,8 +49,8 @@ public class CustomerController {
     }
 
     @GetMapping("login")
-    public String logInUser(@RequestParam("username") String username, @RequestParam("password") String password, HttpServletRequest request) {
-        return "Authenticated";
+    public String logInUser(@RequestParam("role") String role, HttpServletRequest request) {
+        return utils.authenticateUser(request);
     }
 
     @GetMapping("loginVendor")

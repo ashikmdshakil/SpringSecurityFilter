@@ -33,13 +33,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String auth = request.getHeader("Authorization");
+        /*String auth = request.getHeader("Authorization");
         String upd = request.getHeader("authorization");
         String pair = new String(Base64.decodeBase64(upd.substring(6)));
         String userName = pair.split(":")[0];
         String password = pair.split(":")[1];
         String roleName = request.getParameter("role");
-        System.out.println("this role name is "+roleName);
+        System.out.println("this role name is "+roleName);*/
+        String userName = request.getParameter("username");
+        String password = request.getParameter("password");
+        String roleName = request.getParameter("role");
         Authentication authentication = null;
         if (roleName.equals("user")) {
             role.setId(1);

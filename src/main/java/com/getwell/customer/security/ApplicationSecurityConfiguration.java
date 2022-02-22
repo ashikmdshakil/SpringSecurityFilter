@@ -37,9 +37,6 @@ import java.io.IOException;
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private UserDetailsService userDetailsService;
     @Autowired
     private UserMongoRepository userMongoRepository;
 
@@ -49,18 +46,6 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return super.authenticationManagerBean();
     }
 
-
-    /*@Bean
-    public AuthenticationFilter authenticationFilter() throws Exception {
-        AuthenticationFilter authenticationFilter
-                = new AuthenticationFilter(userMongoRepository);
-        authenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/login"));
-        authenticationFilter.setAuthenticationManager(authenticationManagerBean());
-        authenticationFilter.setAuthenticationSuccessHandler(this::loginSuccessHandler);
-        authenticationFilter.setAuthenticationFailureHandler(this :: loginFailureHandler);
-        return authenticationFilter;
-    }*/
-
     @Bean
     public AuthorizationFilter authorizationFilter() throws Exception {
         AuthorizationFilter authorizationFilter
@@ -68,24 +53,11 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return authorizationFilter;
     }
 
-    /*@Bean
-    public OncePerRequestFilter perRequestFilter() throws Exception {
-        PerRequestFilter perRequestFilter
-                = new PerRequestFilter(userMongoRepository);
-        return perRequestFilter;
-    }*/
-
-/*@Override
-protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    // TODO Auto-generated method stub
-    auth.userDetailsService(userDetailsService);
-}*/
-
-    @Override
+   @Override
     public void configure(WebSecurity web) throws Exception {
         // TODO Auto-generated method stub
         //auth.userDetailsService(userDetailsService);
-        web.ignoring().antMatchers("/login**","/error","/login");
+        web.ignoring().antMatchers("/login");
     }
 
     @Override
@@ -96,44 +68,21 @@ protected void configure(AuthenticationManagerBuilder auth) throws Exception {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/login").permitAll()
                 .antMatchers("/user**").hasAuthority("user")
                 .antMatchers("/vendor**").hasAuthority("vendor")
+                .antMatchers("/login").permitAll()
                 .antMatchers("/error").permitAll()
                 .anyRequest().authenticated()
                 .and().httpBasic()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-                .and()
-                .logout()
-                //.invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .and().csrf().disable();
-
         http.addFilterAt(authorizationFilter(), BasicAuthenticationFilter.class);
-
-        //http.addFilterBefore(new PerRequestFilter(this.userMongoRepository), UsernamePasswordAuthenticationFilter.class);
     }
     @Bean
     public PasswordEncoder getPasswordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
 
-    private void loginSuccessHandler(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication) throws IOException {
-
-        response.setStatus(HttpStatus.OK.value());
-    }
-
-    private void loginFailureHandler(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException e) throws IOException {
-
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-    }
 
 }
