@@ -56,13 +56,6 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
         return authorizationFilter;
     }
 
-   @Override
-    public void configure(WebSecurity web) throws Exception {
-        // TODO Auto-generated method stub
-        //auth.userDetailsService(userDetailsService);
-        web.ignoring().antMatchers("/login");
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // TODO Auto-generated method stub

@@ -62,6 +62,7 @@ public class Utils {
         UserDetails userDetails = null;
         String token= request.getHeader("Authorization");
         if(token.startsWith("Basic")){
+            System.out.println("Basic auth is working....");
             String pair = new String(Base64.decodeBase64(token.substring(6)));
             String userName = pair.split(":")[0];
             String password = pair.split(":")[1];
