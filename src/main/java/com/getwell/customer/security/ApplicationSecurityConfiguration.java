@@ -1,6 +1,7 @@
 package com.getwell.customer.security;
 
 import com.getwell.customer.repositories.UserMongoRepository;
+import com.getwell.customer.service.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,8 @@ import java.io.IOException;
 public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserMongoRepository userMongoRepository;
+    @Autowired
+    private Utils utils;
 
     @Bean
     @Override
@@ -49,7 +52,7 @@ public class ApplicationSecurityConfiguration extends WebSecurityConfigurerAdapt
     @Bean
     public AuthorizationFilter authorizationFilter() throws Exception {
         AuthorizationFilter authorizationFilter
-                = new AuthorizationFilter(userMongoRepository, authenticationManagerBean());
+                = new AuthorizationFilter(userMongoRepository,utils,authenticationManagerBean());
         return authorizationFilter;
     }
 

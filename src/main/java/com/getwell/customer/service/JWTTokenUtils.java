@@ -1,5 +1,6 @@
 package com.getwell.customer.service;
 
+import com.getwell.customer.model.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,6 +28,11 @@ public class JWTTokenUtils implements Serializable {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
+    public String getRoleFromToken(String token){
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("role",String.class);
+    }
+
     //retrieve expiration date from jwt token
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
@@ -48,11 +54,16 @@ public class JWTTokenUtils implements Serializable {
     }
 
     //generate token for user
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String role) {
         Map<String, Object> claims = new HashMap<>();
+        if(role.equals("user")){
+            claims.put("role","user");
+        }
+        else if(role.equals("vendor")){
+            claims.put("role","vendor");
+        }
         return doGenerateToken(claims, userDetails.getUsername());
     }
-
     //while creating the token -
     //1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
     //2. Sign the JWT using the HS512 algorithm and secret key.

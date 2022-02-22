@@ -49,9 +49,6 @@ public class User {
     //Reference vendor for branch
     private User referenceVendor;
 
-    //JWT token
-    private String authToken;
-
     //User roles
     @DBRef(lazy = true)
     private List<Role> roles = new ArrayList<>();

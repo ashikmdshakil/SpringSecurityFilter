@@ -3,6 +3,7 @@ package com.getwell.customer.security;
 import com.getwell.customer.model.Role;
 import com.getwell.customer.model.User;
 import com.getwell.customer.repositories.UserMongoRepository;
+import com.getwell.customer.service.Utils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,23 +24,26 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     private User user = new User();
     private UserMongoRepository userMongoRepository;
     private Role role = new Role();
+    private Utils utils = new Utils();
 
-    public AuthorizationFilter(UserMongoRepository userMongoRepository, AuthenticationManager authenticationManager)
+    public AuthorizationFilter(UserMongoRepository userMongoRepository, Utils utils, AuthenticationManager authenticationManager)
     {
         super(authenticationManager);
         this.userMongoRepository = userMongoRepository;
-
+        this.utils = utils;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        /*String auth = request.getHeader("Authorization");
+        Authentication authentication = null;
+        UserDetails principal = utils.getValidUserDetails(request);
+        authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+       /* String auth = request.getHeader("Authorization");
         String upd = request.getHeader("authorization");
         String pair = new String(Base64.decodeBase64(upd.substring(6)));
         String userName = pair.split(":")[0];
-        String password = pair.split(":")[1];*/
-        String userName = request.getParameter("username");
-        String password = request.getParameter("password");
+        String password = pair.split(":")[1];
         String roleName = request.getParameter("role");
         System.out.println("this role name is "+roleName);
         Authentication authentication = null;
@@ -72,7 +76,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                 //session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
                 System.out.println("Vendor authentication is done..");
             }
-        }
+        }*/
         chain.doFilter(request,response);
     }
 

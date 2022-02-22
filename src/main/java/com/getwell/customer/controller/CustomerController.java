@@ -50,6 +50,7 @@ public class CustomerController {
 
     @GetMapping("login")
     public String logInUser(@RequestParam("role") String role, HttpServletRequest request) {
+        System.out.println("Login controller is hit ...");
         return utils.authenticateUser(request);
     }
 
@@ -78,8 +79,8 @@ public class CustomerController {
     }
 
     @GetMapping("userTest")
-    public String userTesting(HttpServletRequest request, @RequestParam("role") String roleName,  @RequestParam("username") String username,  @RequestParam("password") String password){
-        String auth = request.getHeader("Authorization");
+    public String userTesting(){
+        //String auth = request.getHeader("Authorization");
         return "User test is going on.....";
     }
 
@@ -89,11 +90,7 @@ public class CustomerController {
     }
 
     @GetMapping("vendorTest")
-    public String vendorTesting(@RequestParam("role") String roleName, @RequestParam("username") String username, @RequestParam("password") String password){
-        role.setId(1);
-        role.setName("user");
-        user = userMongoRepository.findByMobileNumberAndPasswordAndRolesContaining("01720024944","123456",role);
-        System.out.println("Role id is "+user.getId());
+    public String vendorTesting(){
         return "vendor test is going on...";
     }
 
